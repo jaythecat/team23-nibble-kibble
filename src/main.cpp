@@ -1,19 +1,28 @@
 #include <Arduino.h>
 #include <Servo.h>
+#include <HX711.h>
 
 #define PIR_PIN 21
 #define SERVO_PIN 22
+#define LOADCELL_DT_PIN 23 // data pin
+#define LOADCELL_SCK_PIN 24 // clock pin
+#define LED_PIN 25
 
 unsigned long stableTime = 1000;
 bool motionDetected = false;
+float calibration = -500.0;
 
 Servo myServo;
+HX711 scale;
 
 void setup() {
   Serial.begin(9600);
   pinMode(PIR_PIN, INPUT);
   myServo.attach(SERVO_PIN);
   myServo.write(0);
+  scale.begin(LOADCELL_DT_PIN, LOADCELL_SCK_PIN); // initialize scale
+  scale.set_scale(calibration); // set the calibration
+  scale.tare();
 }
 
 void loop() {
@@ -36,6 +45,15 @@ void loop() {
     motionDetected = false;
     Serial.println("Motion ended");
   }
+
+  // If food is low, light up LED
+  if (scale.get_units() < 500.0) {
+    digital.write(LED_PIN, HIGH);
+  }
+
+  Serial.print(scale.get_units, 3, "g");
+  
   delay(200);
 }
+
 
