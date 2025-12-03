@@ -18,6 +18,7 @@ HX711 scale;
 void setup() {
   Serial.begin(9600);
   pinMode(PIR_PIN, INPUT);
+  pinMode(LED_PIN, OUTPUT);
   myServo.attach(SERVO_PIN);
   myServo.write(0);
   scale.begin(LOADCELL_DT_PIN, LOADCELL_SCK_PIN); // initialize scale
