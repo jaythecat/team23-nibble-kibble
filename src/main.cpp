@@ -34,6 +34,8 @@ void loop() {
     if (digitalRead(PIR_PIN) == HIGH && !motionDetected) {
       motionDetected = true;
       Serial.println("Motion CONFIRMED");
+      Serial.print(scale.get_units());
+    Serial.println("g");
       myServo.write(90);
       delay(500);
       myServo.write(0);
@@ -44,14 +46,16 @@ void loop() {
   if (reading == LOW && motionDetected) {
     motionDetected = false;
     Serial.println("Motion ended");
+    Serial.print(scale.get_units());
+    Serial.println("g");
   }
 
   // If food is low, light up LED
   if (scale.get_units() < 500.0) {
-    digital.write(LED_PIN, HIGH);
+    digitalWrite(LED_PIN, HIGH);
+  
   }
 
-  Serial.print(scale.get_units, 3, "g");
   
   delay(200);
 }
