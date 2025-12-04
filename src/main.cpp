@@ -10,6 +10,7 @@
 #include "freertos/task.h"
 #include "nvs.h"
 #include "nvs_flash.h"
+#include <time.h>
 
 #define PIR_PIN 21
 #define SERVO_PIN 22
