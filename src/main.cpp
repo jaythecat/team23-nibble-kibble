@@ -22,7 +22,7 @@ void setup() {
   myServo.attach(SERVO_PIN);
   myServo.write(0);
   scale.begin(LOADCELL_DT_PIN, LOADCELL_SCK_PIN); // initialize scale
-  scale.set_scale(calibration); // set the calibration
+  scale.set_scale(calibration); // set calibration
   scale.tare();
 }
 
@@ -54,7 +54,8 @@ void loop() {
   // If food is low, light up LED
   if (scale.get_units() < 500.0) {
     digitalWrite(LED_PIN, HIGH);
-  
+  } else {
+    digitalWrite(LED_PIN, LOW);
   }
 
   
