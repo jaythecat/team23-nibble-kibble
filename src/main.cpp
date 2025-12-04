@@ -91,10 +91,12 @@ void http_send_weight(float weight) {
   // HTTP 
   WiFiClient c;
   HttpClient http(c);
+  time_t now = time(nullptr);
 
   // Get sensor readings
-  char url[100];
-  sprintf(url, "/?weight=%.2f", weight);
+  // Get sensor readings
+  char url[150];
+  sprintf(url, "/?time=%ld&weight=%.2f", now, weight);
 
   //err = http.get(kHostname, kPath);
   int err = http.get("44.255.115.21", 5000, url, NULL);
@@ -188,6 +190,7 @@ void setup() {
   Serial.println(WiFi.localIP());
   Serial.println("MAC address: ");
   Serial.println(WiFi.macAddress());
+  configTime(0, 0, "pool.ntp.org");
 }
 
 void loop() {
