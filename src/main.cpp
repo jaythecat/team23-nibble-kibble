@@ -87,81 +87,7 @@ if (err != ESP_OK) {
   nvs_close(my_handle);
 }
 
-
-void setup() {
-  Serial.begin(9600);
-  pinMode(PIR_PIN, INPUT);
-  pinMode(LED_PIN, OUTPUT);
-  myServo.attach(SERVO_PIN);
-  myServo.write(0);
-  scale.begin(LOADCELL_DT_PIN, LOADCELL_SCK_PIN); // initialize scale
-  scale.set_scale(calibration); // set calibration
-  scale.tare();
-  delay(1000);
-
-  // Retrieve SSID/PASSWD from flash before anything else
-  nvs_access();
-
-  // We start by connecting to a WiFi network
-  delay(1000);
-  Serial.println();
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-
-  WiFi.begin(ssid, pass);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
-  Serial.println("MAC address: ");
-  Serial.println(WiFi.macAddress());
-}
-
-void loop() {
-  int reading = digitalRead(PIR_PIN);
-  float weight = scale.get_units();
-
-
-  // PIR
-  // If PIR goes HIGH, double-check it after a delay
-  if (reading == HIGH) {
-    delay(stableTime);
-    if (digitalRead(PIR_PIN) == HIGH && !motionDetected) {
-      motionDetected = true;
-      Serial.println("Motion CONFIRMED");
-      Serial.print(weight);
-    Serial.println("g");
-      myServo.write(90);
-      delay(500);
-      myServo.write(0);
-    }
-  }
-
-  // If PIR goes LOW, reset state
-  if (reading == LOW && motionDetected) {
-    motionDetected = false;
-    Serial.println("Motion ended");
-    Serial.print(weight);
-    Serial.println("g");
-  }
-
-
-  // LED
-  // If food is low, light up LED
-  if (weight < 500.0) {
-    digitalWrite(LED_PIN, HIGH);
-  } else {
-    digitalWrite(LED_PIN, LOW);
-  }
-
-
+void http_send_weight(float weight) {
   // HTTP 
   WiFiClient c;
   HttpClient http(c);
@@ -226,6 +152,88 @@ void loop() {
     Serial.println(err);
   }
   http.stop();
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(PIR_PIN, INPUT);
+  pinMode(LED_PIN, OUTPUT);
+  myServo.attach(SERVO_PIN);
+  myServo.write(0);
+  scale.begin(LOADCELL_DT_PIN, LOADCELL_SCK_PIN); // initialize scale
+  scale.set_scale(calibration); // set calibration
+  scale.tare();
+  delay(1000);
+
+  // Retrieve SSID/PASSWD from flash before anything else
+  nvs_access();
+
+  // We start by connecting to a WiFi network
+  delay(1000);
+  Serial.println();
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, pass);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  Serial.println("MAC address: ");
+  Serial.println(WiFi.macAddress());
+}
+
+void loop() {
+  int reading = digitalRead(PIR_PIN);
+  float weight = scale.get_units();
+  float dispensed = -1;
+
+
+  // PIR
+  // If PIR goes HIGH, double-check it after a delay
+  if (reading == HIGH) {
+    delay(stableTime);
+    if (digitalRead(PIR_PIN) == HIGH && !motionDetected) {
+      motionDetected = true;
+      Serial.println("Motion CONFIRMED");
+      Serial.print(weight);
+      Serial.println("g");
+      myServo.write(90);
+      delay(500);
+      myServo.write(0);
+    }
+  }
+
+  // If PIR goes LOW, reset state
+  if (reading == LOW && motionDetected) {
+    motionDetected = false;
+    Serial.println("Motion ended");
+    dispensed = weight - scale.get_units();
+    Serial.print(weight);
+    Serial.println("g");
+  }
+
+
+  // LED
+  // If food is low, light up LED
+  if (weight < 500.0) {
+    digitalWrite(LED_PIN, HIGH);
+  } else {
+    digitalWrite(LED_PIN, LOW);
+  }
+
+  if (dispensed > 0) {
+    http_send_weight(dispensed);
+  }
+
+  
 
   // And just stop, now that we've tried a download
   // while (1)
