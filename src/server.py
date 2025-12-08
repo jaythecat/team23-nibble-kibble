@@ -4,7 +4,7 @@ from datetime import datetime
 import json
 
 
-def save_reading(time, weight)
+def save_reading(time, weight):
     """Append new reading to file"""
     reading = {
         "timestamp": time,
@@ -33,10 +33,10 @@ def getWeight():
     time = request.args.get("time")
     if time is None or weight is None:
         return "Incomplete data"
-    
+    dt = datetime.fromtimestamp(time)
     print(f"Time: {dt}")
     print(f"Weight: {weight}")
-    save_reading(dt, weight)
+    save_reading(time, weight)
 
     return "We recieved the values: "+ str(time) + " " + str(weight)
 

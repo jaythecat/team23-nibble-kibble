@@ -233,7 +233,7 @@ void loop() {
     digitalWrite(LED_PIN, LOW);
   }
 
-  if (dispensed > 0) {
+  if (dispensed > 10) {
     http_send_weight(dispensed);
   }
 
