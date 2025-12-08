@@ -31,9 +31,13 @@ app = Flask(__name__)
 def getWeight():
     weight = request.args.get("weight")
     time = request.args.get("time")
-    if time is None or weight is None:
+    dt = None
+    try:
+        dt = datetime.fromtimestamp(int(time))
+    except:
+        print("Time not in valid int")
+    if time is None or weight is None or dt is None:
         return "Incomplete data"
-    dt = datetime.fromtimestamp(time)
     print(f"Time: {dt}")
     print(f"Weight: {weight}")
     save_reading(time, weight)

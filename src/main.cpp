@@ -14,9 +14,9 @@
 
 #define PIR_PIN 21
 #define SERVO_PIN 22
-#define LOADCELL_DT_PIN 23 // data pin
-#define LOADCELL_SCK_PIN 24 // clock pin
-#define LED_PIN 25
+#define LOADCELL_DT_PIN 13 // data pin
+#define LOADCELL_SCK_PIN 12 // clock pin
+#define LED_PIN 32
 
 unsigned long stableTime = 1000;
 bool motionDetected = false;
@@ -100,7 +100,7 @@ void http_send_weight(float weight) {
   sprintf(url, "/?time=%ld&weight=%.2f", now, weight);
 
   //err = http.get(kHostname, kPath);
-  int err = http.get("44.255.115.21", 5000, url, NULL);
+  int err = http.get("54.203.117.186", 5000, url, NULL);
 
   if (err == 0) {
     Serial.println("startedRequest ok");
@@ -207,6 +207,7 @@ void loop() {
     if (digitalRead(PIR_PIN) == HIGH && !motionDetected) {
       motionDetected = true;
       Serial.println("Motion CONFIRMED");
+      Serial.print("Current weight: ");
       Serial.print(weight);
       Serial.println("g");
       myServo.write(90);
@@ -220,6 +221,12 @@ void loop() {
     motionDetected = false;
     Serial.println("Motion ended");
     dispensed = weight - scale.get_units();
+    Serial.print("Food dispensed: ");
+    Serial.println(dispensed);
+
+    //fake weight for now
+    dispensed = 80;
+    Serial.print("Current weight: ");
     Serial.print(weight);
     Serial.println("g");
   }
