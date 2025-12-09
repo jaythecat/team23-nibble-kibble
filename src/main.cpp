@@ -247,7 +247,7 @@ void loop() {
 
   // LED
   // If food is low, light up LED
-  if (weight < 500.0) {
+  if (weight < 100.0) {
     digitalWrite(LED_PIN, HIGH);
   } else {
     digitalWrite(LED_PIN, LOW);
