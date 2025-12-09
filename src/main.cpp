@@ -20,7 +20,7 @@
 
 unsigned long stableTime = 1000;
 bool motionDetected = false;
-float calibration = -500.0;
+float calibration = -212.0;
 float weight = 0;
 
 Servo myServo;
@@ -169,9 +169,10 @@ void setup() {
 
   Serial.println("Please ensure scale is empty...");
   delay(5000);
+  scale.tare();
 
   scale.set_scale(calibration); // set calibration
-  scale.tare();
+  
   Serial.println("Calibration set and tare complete");
   delay(1000);
 
@@ -213,7 +214,7 @@ void loop() {
     if (digitalRead(PIR_PIN) == HIGH && !motionDetected) {
       motionDetected = true;
       Serial.println("Motion CONFIRMED");
-      weight = scale.get_units();
+      weight = scale.get_units(10);
       Serial.print("Current weight: ");
       Serial.print(weight);
       Serial.println("g");
@@ -228,7 +229,7 @@ void loop() {
     motionDetected = false;
     Serial.println("Motion ended");
     Serial.print("Current weight: ");
-    float new_weight = scale.get_units();
+    float new_weight = scale.get_units(10);
     Serial.print(new_weight);
     Serial.println("g");
     Serial.print("Previous weight: ");
