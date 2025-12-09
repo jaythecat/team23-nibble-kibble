@@ -21,6 +21,7 @@
 unsigned long stableTime = 1000;
 bool motionDetected = false;
 float calibration = -500.0;
+float weight = 0;
 
 Servo myServo;
 HX711 scale;
@@ -164,8 +165,14 @@ void setup() {
   myServo.attach(SERVO_PIN);
   myServo.write(0);
   scale.begin(LOADCELL_DT_PIN, LOADCELL_SCK_PIN); // initialize scale
+
+
+  Serial.println("Please ensure scale is empty...");
+  delay(5000);
+
   scale.set_scale(calibration); // set calibration
   scale.tare();
+  Serial.println("Calibration set and tare complete");
   delay(1000);
 
   // Retrieve SSID/PASSWD from flash before anything else
@@ -196,7 +203,6 @@ void setup() {
 
 void loop() {
   int reading = digitalRead(PIR_PIN);
-  float weight = scale.get_units();
   float dispensed = -1;
 
 
@@ -207,6 +213,7 @@ void loop() {
     if (digitalRead(PIR_PIN) == HIGH && !motionDetected) {
       motionDetected = true;
       Serial.println("Motion CONFIRMED");
+      weight = scale.get_units();
       Serial.print("Current weight: ");
       Serial.print(weight);
       Serial.println("g");
@@ -220,12 +227,17 @@ void loop() {
   if (reading == LOW && motionDetected) {
     motionDetected = false;
     Serial.println("Motion ended");
-    dispensed = weight - scale.get_units();
+    Serial.print("Current weight: ");
+    float new_weight = scale.get_units();
+    Serial.print(new_weight);
+    Serial.println("g");
+    Serial.print("Previous weight: ");
+    Serial.print(weight);
+    Serial.println("g");
+    dispensed = weight - new_weight;
     Serial.print("Food dispensed: ");
     Serial.println(dispensed);
 
-    //fake weight for now
-    dispensed = 80;
     Serial.print("Current weight: ");
     Serial.print(weight);
     Serial.println("g");
