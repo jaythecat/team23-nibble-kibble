@@ -101,7 +101,7 @@ void http_send_weight(float weight) {
   sprintf(url, "/?time=%ld&weight=%.2f", now, weight);
 
   //err = http.get(kHostname, kPath);
-  int err = http.get("54.203.117.186", 5000, url, NULL);
+  int err = http.get("44.243.214.140", 5000, url, NULL);
 
   if (err == 0) {
     Serial.println("startedRequest ok");
@@ -205,6 +205,7 @@ void setup() {
 void loop() {
   int reading = digitalRead(PIR_PIN);
   float dispensed = -1;
+  float current_weight = scale.get_units(10);
 
 
   // PIR
@@ -232,9 +233,6 @@ void loop() {
     float new_weight = scale.get_units(10);
     Serial.print(new_weight);
     Serial.println("g");
-    Serial.print("Previous weight: ");
-    Serial.print(weight);
-    Serial.println("g");
     dispensed = weight - new_weight;
     Serial.print("Food dispensed: ");
     Serial.println(dispensed);
@@ -247,7 +245,7 @@ void loop() {
 
   // LED
   // If food is low, light up LED
-  if (weight < 100.0) {
+  if (current_weight < 100.0) {
     digitalWrite(LED_PIN, HIGH);
   } else {
     digitalWrite(LED_PIN, LOW);
